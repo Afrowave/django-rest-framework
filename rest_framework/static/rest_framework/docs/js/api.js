@@ -2,6 +2,14 @@ var responseDisplay = 'data'
 var coreapi = window.coreapi
 var schema = window.schema
 
+function normalizeKeys (arr) {
+  var _normarr = [];
+  for (var i = 0; i < arr.length; i++) {
+    _normarr = _normarr.concat(arr[i].split(' > '));
+  }
+  return _normarr;
+}
+
 function normalizeHTTPHeader (str) {
   // Capitalize HTTP headers for display.
   return (str.charAt(0).toUpperCase() + str.substring(1))
@@ -23,7 +31,7 @@ function formEntries (form) {
   // Polyfill for new FormData(form).entries()
   var formData = new FormData(form)
   if (formData.entries !== undefined) {
-    return formData.entries()
+    return Array.from(formData.entries())
   }
 
   var entries = []
@@ -59,6 +67,8 @@ $(function () {
   var $selectedAuthentication = $('#selected-authentication')
   var $authControl = $('#auth-control')
   var $authTokenModal = $('#auth_token_modal')
+  var $authBasicModal = $('#auth_basic_modal')
+  var $authSessionModal = $('#auth_session_modal')
 
   // Language Control
   $('#language-control li').click(function (event) {
@@ -92,7 +102,7 @@ $(function () {
     var $requestAwaiting = $form.find('.request-awaiting')
     var $responseRaw = $form.find('.response-raw')
     var $responseData = $form.find('.response-data')
-    var key = $form.data('key')
+    var key = normalizeKeys($form.data('key'))
     var params = {}
     var entries = formEntries($form.get()[0])
 
@@ -100,7 +110,7 @@ $(function () {
       var entry = entries[i]
       var paramKey = entry[0]
       var paramValue = entry[1]
-      var $elem = $form.find('[name=' + paramKey + ']')
+      var $elem = $form.find('[name="' + paramKey + '"]')
       var dataType = $elem.data('type') || 'string'
 
       if (dataType === 'integer' && paramValue) {
@@ -119,7 +129,7 @@ $(function () {
           'false': false
         }[paramValue.toLowerCase()]
         if (value !== undefined) {
-          params[paramKey]
+          params[paramKey] = value
         }
       } else if (dataType === 'array' && paramValue) {
         try {
@@ -210,7 +220,6 @@ $(function () {
     }
 
     var client = new coreapi.Client(options)
-
     client.action(schema, key, params).then(function (data) {
       var response = JSON.stringify(data, null, 2)
       $requestAwaiting.addClass('hide')
@@ -260,8 +269,8 @@ $(function () {
     event.preventDefault()
     window.auth = null
     $selectedAuthentication.text('none')
-    $authControl.children().removeClass('active')
-    $authControl.find("[data-auth='none']").addClass('active')
+    $authControl.find("[data-auth]").closest('li').removeClass('active')
+    $authControl.find("[data-auth='none']").closest('li').addClass('active')
   })
 
   // Authentication: token
@@ -276,8 +285,8 @@ $(function () {
       'token': token
     }
     $selectedAuthentication.text('token')
-    $authControl.children().removeClass('active')
-    $authControl.find("[data-auth='token']").addClass('active')
+    $authControl.find("[data-auth]").closest('li').removeClass('active')
+    $authControl.find("[data-auth='token']").closest('li').addClass('active')
     $authTokenModal.modal('hide')
   })
 
@@ -293,9 +302,9 @@ $(function () {
       'password': password
     }
     $selectedAuthentication.text('basic')
-    $authControl.children().removeClass('active')
-    $authControl.find("[data-auth='basic']").addClass('active')
-    $authTokenModal.modal('hide')
+    $authControl.find("[data-auth]").closest('li').removeClass('active')
+    $authControl.find("[data-auth='basic']").closest('li').addClass('active')
+    $authBasicModal.modal('hide')
   })
 
   // Authentication: session
@@ -305,8 +314,8 @@ $(function () {
       'type': 'session'
     }
     $selectedAuthentication.text('session')
-    $authControl.children().removeClass('active')
-    $authControl.find("[data-auth='session']").addClass('active')
-    $authTokenModal.modal('hide')
+    $authControl.find("[data-auth]").closest('li').removeClass('active')
+    $authControl.find("[data-auth='session']").closest('li').addClass('active')
+    $authSessionModal.modal('hide')
   })
 })

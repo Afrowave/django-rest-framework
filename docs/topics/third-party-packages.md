@@ -185,6 +185,7 @@ To submit new content, [open an issue][drf-create-issue] or [create a pull reque
 * [django-oauth-toolkit][django-oauth-toolkit] - Provides OAuth 2.0 support.
 * [doac][doac] - Provides OAuth 2.0 support.
 * [djangorestframework-jwt][djangorestframework-jwt] - Provides JSON Web Token Authentication support.
+* [djangorestframework-simplejwt][djangorestframework-simplejwt] - An alternative package that provides JSON Web Token Authentication support.
 * [hawkrest][hawkrest] - Provides Hawk HTTP Authorization.
 * [djangorestframework-httpsignature][djangorestframework-httpsignature] - Provides an easy to use HTTP Signature Authentication mechanism.
 * [djoser][djoser] - Provides a set of views to handle basic actions such as registration, login, logout, password reset and account activation.
@@ -238,6 +239,7 @@ To submit new content, [open an issue][drf-create-issue] or [create a pull reque
 * [djangorestframework-jsonapi][djangorestframework-jsonapi] - Provides a parser, renderer, serializers, and other tools to help build an API that is compliant with the jsonapi.org spec.
 * [drf_ujson][drf_ujson] - Implements JSON rendering using the UJSON package.
 * [rest-pandas][rest-pandas] - Pandas DataFrame-powered renderers including Excel, CSV, and SVG formats.
+* [djangorestframework-rapidjson][djangorestframework-rapidjson] - Provides rapidjson support with parser and renderer.
 
 ### Filtering
 
@@ -261,7 +263,7 @@ To submit new content, [open an issue][drf-create-issue] or [create a pull reque
 * [drf-haystack][drf-haystack] - Haystack search for Django Rest Framework
 * [django-rest-framework-version-transforms][django-rest-framework-version-transforms] - Enables the use of delta transformations for versioning of DRF resource representations.
 * [django-rest-messaging][django-rest-messaging], [django-rest-messaging-centrifugo][django-rest-messaging-centrifugo] and [django-rest-messaging-js][django-rest-messaging-js] - A real-time pluggable messaging service using DRM.
-
+* [djangorest-alchemy][djangorest-alchemy] - SQLAlchemy support for REST framework.
 
 [cite]: http://www.software-ecosystems.com/Software_Ecosystems/Ecosystems.html
 [cookiecutter]: https://github.com/jpadilla/cookiecutter-django-rest-framework
@@ -284,6 +286,7 @@ To submit new content, [open an issue][drf-create-issue] or [create a pull reque
 [django-oauth-toolkit]: https://github.com/evonove/django-oauth-toolkit
 [doac]: https://github.com/Rediker-Software/doac
 [djangorestframework-jwt]: https://github.com/GetBlimp/django-rest-framework-jwt
+[djangorestframework-simplejwt]: https://github.com/davesque/django-rest-framework-simplejwt
 [hawkrest]: https://github.com/kumar303/hawkrest
 [djangorestframework-httpsignature]: https://github.com/etoccalino/django-rest-framework-httpsignature
 [djoser]: https://github.com/sunscrapers/djoser
@@ -296,7 +299,7 @@ To submit new content, [open an issue][drf-create-issue] or [create a pull reque
 [drf-compound-fields]: https://github.com/estebistec/drf-compound-fields
 [django-extra-fields]: https://github.com/Hipo/drf-extra-fields
 [djangorestframework-bulk]: https://github.com/miki725/django-rest-framework-bulk
-[django-rest-multiple-models]: https://github.com/Axiologue/DjangoRestMultipleModels
+[django-rest-multiple-models]: https://github.com/MattBroach/DjangoRestMultipleModels
 [drf-nested-routers]: https://github.com/alanjds/drf-nested-routers
 [wq.db.rest]: http://wq.io/docs/about-rest
 [djangorestframework-msgpack]: https://github.com/juanriaza/django-rest-framework-msgpack
@@ -304,6 +307,7 @@ To submit new content, [open an issue][drf-create-issue] or [create a pull reque
 [djangorestframework-csv]: https://github.com/mjumbewu/django-rest-framework-csv
 [drf_ujson]: https://github.com/gizmag/drf-ujson-renderer
 [rest-pandas]: https://github.com/wq/django-rest-pandas
+[djangorestframework-rapidjson]: https://github.com/allisson/django-rest-framework-rapidjson
 [djangorestframework-chain]: https://github.com/philipn/django-rest-framework-chain
 [djangorestrelationalhyperlink]: https://github.com/fredkingham/django_rest_model_hyperlink_serializers_project
 [django-rest-swagger]: https://github.com/marcgibbons/django-rest-swagger
@@ -332,3 +336,4 @@ To submit new content, [open an issue][drf-create-issue] or [create a pull reque
 [drf-serializer-extensions]: https://github.com/evenicoulddoit/django-rest-framework-serializer-extensions
 [djangorestframework-queryfields]: https://github.com/wimglenn/djangorestframework-queryfields
 [drfpasswordless]: https://github.com/aaronn/django-rest-framework-passwordless
+[djangorest-alchemy]: https://github.com/dealertrack/djangorest-alchemy

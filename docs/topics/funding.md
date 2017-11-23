@@ -37,21 +37,25 @@ if (window.location.hostname == "www.django-rest-framework.org") {
     min-height: 255px;
     position: relative;
     top: 37px;
-    margin-bottom: 20px}
+    margin-bottom: 20px
+}
 .quantity {
-    text-align: center}
+    text-align: center
+}
 .dollar {
     font-size: 19px;
     position: relative;
     top: -18px;
 }
 .price {
-    font-size: 49px;}
+    font-size: 49px;
+}
 .period {
     font-size: 17px;
     position: relative;
     top: -8px;
-    margin-left: 4px;}
+    margin-left: 4px;
+}
 .plan-name {
     text-align: center;
     font-size: 20px;
@@ -61,9 +65,11 @@ if (window.location.hostname == "www.django-rest-framework.org") {
     padding-bottom: 15px;
     width: 90%;
     margin: 0 auto;
-    margin-top: 8px;}
+    margin-top: 8px;
+}
 .specs {
-    margin-top: 20px;    min-height: 130px;
+    margin-top: 20px;
+    min-height: 130px;
 }
 .specs.freelancer {
     min-height: 0px;
@@ -73,14 +79,18 @@ if (window.location.hostname == "www.django-rest-framework.org") {
     color: #474747;
     text-align: center;
     font-weight: 300;
-    margin-bottom: 13px;}
+    margin-bottom: 13px;
+}
 .variable {
     color: #1FBEE7;
-    font-weight: 400;}
+    font-weight: 400;
+}
 form.signup {
-    margin-top: 35px}
+    margin-top: 35px
+}
 .clear-promo {
-    padding-top: 30px}
+    padding-top: 30px
+}
 #main-content h1:first-of-type {
     margin: 0 0 50px;
     font-size: 60px;
@@ -115,6 +125,7 @@ REST framework continues to be open-source and permissively licensed, but we fir
 
 * The [3.4](http://www.django-rest-framework.org/topics/3.4-announcement/) and [3.5](http://www.django-rest-framework.org/topics/3.5-announcement/) releases, including schema generation for both Swagger and RAML, a Python client library, a Command Line client, and addressing of a large number of outstanding issues.
 * The [3.6](http://www.django-rest-framework.org/topics/3.6-announcement/) release, including  JavaScript client library, and API documentation, complete with auto-generated code samples.
+* The recent [3.7 release](http://www.django-rest-framework.org/topics/3.7-announcement/), made possible due to our collaborative funding model, focuses on improvements to schema generation and the interactive API documentation.
 * Tom Christie, the creator of Django REST framework, working on the project full-time.
 * Around 80-90 issues and pull requests closed per month since Tom Christie started working on the project full-time.
 * A community & operations manager position part-time for 4 months, helping mature the business and grow sponsorship.
@@ -329,7 +340,7 @@ For further enquires please contact <a href=mailto:funding@django-rest-framework
 
 ## Accountability
 
-In an effort to keep the project as transparent as possible, we are releasing [monthly progress reports](http://www.encode.io/reports/march-2017) and regularly include financial reports and cost breakdowns.
+In an effort to keep the project as transparent as possible, we are releasing [monthly progress reports](http://www.encode.io/reports/october-2017) and regularly include financial reports and cost breakdowns.
 
 <!-- Begin MailChimp Signup Form -->
 <link href="//cdn-images.mailchimp.com/embedcode/classic-10_7.css" rel="stylesheet" type="text/css">
@@ -357,6 +368,25 @@ In an effort to keep the project as transparent as possible, we are releasing [m
 </div>
 <script type='text/javascript' src='//s3.amazonaws.com/downloads.mailchimp.com/js/mc-validate.js'></script><script type='text/javascript'>(function($) {window.fnames = new Array(); window.ftypes = new Array();fnames[0]='EMAIL';ftypes[0]='email';fnames[1]='FNAME';ftypes[1]='text';fnames[2]='LNAME';ftypes[2]='text';}(jQuery));var $mcj = jQuery.noConflict(true);</script>
 <!--End mc_embed_signup-->
+
+---
+
+## Frequently asked questions
+
+**Q: Can you issue monthly invoices?**
+A: Yes, we are happy to issue monthly invoices. Please just <a href=mailto:funding@django-rest-framework.org>email us</a> and let us know who to issue the invoice to (name and address) and which email address to send it to each month.
+
+**Q: Does sponsorship include VAT?**
+A: Sponsorship is VAT exempt.
+
+**Q: Do I have to sign up for a certain time period?**
+A: No, we appreciate your support for any time period that is convenient for you. Also, you can cancel your sponsorship anytime.
+
+**Q: Can I pay yearly? Can I pay upfront fox X amount of months at a time?**
+A: We are currently only set up to accept monthly payments. However, if you'd like to support Django REST framework and you can only do yearly/upfront payments, we are happy to work with you and figure out a convenient solution.
+
+**Q: Are you only looking for corporate sponsors?**
+A: No, we value individual sponsors just as much as corporate sponsors and appreciate any kind of support.
 
 ---
 

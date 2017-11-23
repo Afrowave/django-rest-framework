@@ -26,10 +26,9 @@ The initial aim is to provide a single full-time position on REST framework.
   <a href="https://getstream.io/try-the-api/?utm_source=drf&utm_medium=banner&utm_campaign=drf"><img src="https://raw.githubusercontent.com/encode/django-rest-framework/master/docs/img/premium/stream-readme.png"/></a>
   <a href="https://hello.machinalis.co.uk/"><img src="https://raw.githubusercontent.com/encode/django-rest-framework/master/docs/img/premium/machinalis-readme.png"/></a>
   <a href="https://rollbar.com/"><img src="https://raw.githubusercontent.com/encode/django-rest-framework/master/docs/img/premium/rollbar-readme.png"/></a>
-  <a href="https://micropyramid.com/django-rest-framework-development-services/"><img src="https://raw.githubusercontent.com/encode/django-rest-framework/master/docs/img/premium/micropyramid-readme.png"/></a>
 </p>
 
-*Many thanks to all our [wonderful sponsors][sponsors], and in particular to our premium backers, [Rover](http://jobs.rover.com/), [Sentry](https://getsentry.com/welcome/), [Stream](https://getstream.io/?utm_source=drf&utm_medium=banner&utm_campaign=drf), [Machinalis](https://hello.machinalis.co.uk/), [Rollbar](https://rollbar.com), and [MicroPyramid](https://micropyramid.com/django-rest-framework-development-services/).*
+*Many thanks to all our [wonderful sponsors][sponsors], and in particular to our premium backers, [Rover](http://jobs.rover.com/), [Sentry](https://getsentry.com/welcome/), [Stream](https://getstream.io/?utm_source=drf&utm_medium=banner&utm_campaign=drf), [Machinalis](https://hello.machinalis.co.uk/), and [Rollbar](https://rollbar.com/).*
 
 ---
 
@@ -53,8 +52,8 @@ There is a live example API for testing purposes, [available here][sandbox].
 
 # Requirements
 
-* Python (2.7, 3.2, 3.3, 3.4, 3.5)
-* Django (1.8, 1.9, 1.10, 1.11)
+* Python (2.7, 3.4, 3.5, 3.6)
+* Django (1.10, 1.11, 2.0rc1)
 
 # Installation
 
