@@ -93,11 +93,11 @@ When using viewsets, you should use the relevant action names as delimiters.
 
 ### `documentation` API Reference
 
-The `rest_framework.documentation` module provides three helper functions to help configure the interactive API documentation, `include_docs_url` (usage shown above), `get_docs_view` and `get_schemajs_view`.
+The `rest_framework.documentation` module provides three helper functions to help configure the interactive API documentation, `include_docs_urls` (usage shown above), `get_docs_view` and `get_schemajs_view`.
 
- `include_docs_url` employs `get_docs_view` and `get_schemajs_view` to generate the url patterns for the documentation page and JavaScript resource that exposes the API schema respectively. They expose the following options for customisation. (`get_docs_view` and `get_schemajs_view` ultimately call `rest_frameworks.schemas.get_schema_view()`, see the Schemas docs for more options there.)
+ `include_docs_urls` employs `get_docs_view` and `get_schemajs_view` to generate the url patterns for the documentation page and JavaScript resource that exposes the API schema respectively. They expose the following options for customisation. (`get_docs_view` and `get_schemajs_view` ultimately call `rest_frameworks.schemas.get_schema_view()`, see the Schemas docs for more options there.)
 
-#### `include_docs_url`
+#### `include_docs_urls`
 
 * `title`: Default `None`. May be used to provide a descriptive title for the schema definition.
 * `description`: Default `None`. May be used to provide a description for the schema definition.
@@ -135,6 +135,21 @@ The `rest_framework.documentation` module provides three helper functions to hel
 ## Third party packages
 
 There are a number of mature third-party packages for providing API documentation.
+
+#### drf-yasg - Yet Another Swagger Generator
+
+[drf-yasg][drf-yasg] is a [Swagger][swagger] generation tool implemented without using the schema generation provided 
+by Django Rest Framework.
+
+It aims to implement as much of the [OpenAPI][open-api] specification as possible - nested schemas, named models, 
+response bodies, enum/pattern/min/max validators, form parameters, etc. - and to generate documents usable with code 
+generation tools like `swagger-codegen`.
+
+This also translates into a very useful interactive documentation viewer in the form of `swagger-ui`:
+
+
+![Screenshot - drf-yasg][image-drf-yasg]
+
 
 #### DRF OpenAPI
 
@@ -254,15 +269,18 @@ REST framework APIs also support programmatically accessible descriptions, using
 
 When using the generic views, any `OPTIONS` requests will additionally respond with metadata regarding any `POST` or `PUT` actions available, describing which fields are on the serializer.
 
-You can modify the response behavior to `OPTIONS` requests by overriding the `metadata` view method.  For example:
+You can modify the response behavior to `OPTIONS` requests by overriding the `options` view method and/or by providing a custom Metadata class.  For example:
 
-    def metadata(self, request):
+    def options(self, request, *args, **kwargs):
         """
         Don't include the view description in OPTIONS responses.
         """
-        data = super(ExampleView, self).metadata(request)
+        meta = self.metadata_class()
+        data = meta.determine_metadata(request, self)
         data.pop('description')
         return data
+
+See [the Metadata docs][metadata-docs] for more details.
 
 ---
 
@@ -275,20 +293,24 @@ In this approach, rather than documenting the available API endpoints up front, 
 To implement a hypermedia API you'll need to decide on an appropriate media type for the API, and implement a custom renderer and parser for that media type.  The [REST, Hypermedia & HATEOAS][hypermedia-docs] section of the documentation includes pointers to background reading, as well as links to various hypermedia formats.
 
 [cite]: http://roy.gbiv.com/untangled/2008/rest-apis-must-be-hypertext-driven
+[drf-yasg]: https://github.com/axnsan12/drf-yasg/
+[image-drf-yasg]: ../img/drf-yasg.png
 [drf-openapi]: https://github.com/limdauto/drf_openapi/
 [image-drf-openapi]: ../img/drf-openapi.png
 [drfdocs-repo]: https://github.com/ekonstantinidis/django-rest-framework-docs
-[drfdocs-website]: http://www.drfdocs.com/
+[drfdocs-website]: https://www.drfdocs.com/
 [drfdocs-demo]: http://demo.drfdocs.com/
 [drfautodocs-repo]: https://github.com/iMakedonsky/drf-autodocs
 [django-rest-swagger]: https://github.com/marcgibbons/django-rest-swagger
-[swagger]: https://developers.helloreverb.com/swagger/
+[swagger]: https://swagger.io/
+[open-api]: https://openapis.org/
 [rest-framework-docs]: https://github.com/marcgibbons/django-rest-framework-docs
-[apiary]: http://apiary.io/
-[markdown]: http://daringfireball.net/projects/markdown/
+[apiary]: https://apiary.io/
+[markdown]: https://daringfireball.net/projects/markdown/
 [hypermedia-docs]: rest-hypermedia-hateoas.md
 [image-drf-docs]: ../img/drfdocs.png
 [image-django-rest-swagger]: ../img/django-rest-swagger.png
 [image-apiary]: ../img/apiary.png
 [image-self-describing-api]: ../img/self-describing.png
 [schemas-examples]: ../api-guide/schemas/#example
+[metadata-docs]: ../api-guide/metadata/

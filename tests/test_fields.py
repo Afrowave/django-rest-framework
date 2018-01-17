@@ -401,7 +401,7 @@ class TestHTMLInput:
 
         serializer = TestSerializer(data=QueryDict('message='))
         assert serializer.is_valid()
-        assert list(serializer.validated_data.keys()) == ['message']
+        assert list(serializer.validated_data) == ['message']
 
     def test_empty_html_uuidfield_with_optional(self):
         class TestSerializer(serializers.Serializer):
@@ -409,7 +409,7 @@ class TestHTMLInput:
 
         serializer = TestSerializer(data=QueryDict('message='))
         assert serializer.is_valid()
-        assert list(serializer.validated_data.keys()) == []
+        assert list(serializer.validated_data) == []
 
     def test_empty_html_charfield_allow_null(self):
         class TestSerializer(serializers.Serializer):
@@ -1767,7 +1767,7 @@ class TestListField(FieldValues):
     ]
     invalid_inputs = [
         ('not a list', ['Expected a list of items but got type "str".']),
-        ([1, 2, 'error'], ['A valid integer is required.']),
+        ([1, 2, 'error', 'error'], {2: ['A valid integer is required.'], 3: ['A valid integer is required.']}),
         ({'one': 'two'}, ['Expected a list of items but got type "dict".'])
     ]
     outputs = [
@@ -1792,6 +1792,25 @@ class TestListField(FieldValues):
         with pytest.raises(serializers.ValidationError) as exc_info:
             field.to_internal_value(input_value)
         assert exc_info.value.detail == ['Expected a list of items but got type "dict".']
+
+
+class TestNestedListField(FieldValues):
+    """
+    Values for nested `ListField` with IntegerField as child.
+    """
+    valid_inputs = [
+        ([[1, 2], [3]], [[1, 2], [3]]),
+        ([[]], [[]])
+    ]
+    invalid_inputs = [
+        (['not a list'], {0: ['Expected a list of items but got type "str".']}),
+        ([[1, 2, 'error'], ['error']], {0: {2: ['A valid integer is required.']}, 1: {0: ['A valid integer is required.']}}),
+        ([{'one': 'two'}], {0: ['Expected a list of items but got type "dict".']})
+    ]
+    outputs = [
+        ([[1, 2], [3]], [[1, 2], [3]]),
+    ]
+    field = serializers.ListField(child=serializers.ListField(child=serializers.IntegerField()))
 
 
 class TestEmptyListField(FieldValues):
@@ -1834,13 +1853,13 @@ class TestUnvalidatedListField(FieldValues):
 
 class TestDictField(FieldValues):
     """
-    Values for `ListField` with CharField as child.
+    Values for `DictField` with CharField as child.
     """
     valid_inputs = [
         ({'a': 1, 'b': '2', 3: 3}, {'a': '1', 'b': '2', '3': '3'}),
     ]
     invalid_inputs = [
-        ({'a': 1, 'b': None}, ['This field may not be null.']),
+        ({'a': 1, 'b': None, 'c': None}, {'b': ['This field may not be null.'], 'c': ['This field may not be null.']}),
         ('not a dict', ['Expected a dictionary of items but got type "str".']),
     ]
     outputs = [
@@ -1866,9 +1885,26 @@ class TestDictField(FieldValues):
         assert output is None
 
 
+class TestNestedDictField(FieldValues):
+    """
+    Values for nested `DictField` with CharField as child.
+    """
+    valid_inputs = [
+        ({0: {'a': 1, 'b': '2'}, 1: {3: 3}}, {'0': {'a': '1', 'b': '2'}, '1': {'3': '3'}}),
+    ]
+    invalid_inputs = [
+        ({0: {'a': 1, 'b': None}, 1: {'c': None}}, {'0': {'b': ['This field may not be null.']}, '1': {'c': ['This field may not be null.']}}),
+        ({0: 'not a dict'}, {'0': ['Expected a dictionary of items but got type "str".']}),
+    ]
+    outputs = [
+        ({0: {'a': 1, 'b': '2'}, 1: {3: 3}}, {'0': {'a': '1', 'b': '2'}, '1': {'3': '3'}}),
+    ]
+    field = serializers.DictField(child=serializers.DictField(child=serializers.CharField()))
+
+
 class TestDictFieldWithNullChild(FieldValues):
     """
-    Values for `ListField` with allow_null CharField as child.
+    Values for `DictField` with allow_null CharField as child.
     """
     valid_inputs = [
         ({'a': None, 'b': '2', 3: 3}, {'a': None, 'b': '2', '3': '3'}),
@@ -1883,7 +1919,7 @@ class TestDictFieldWithNullChild(FieldValues):
 
 class TestUnvalidatedDictField(FieldValues):
     """
-    Values for `ListField` with no `child` argument.
+    Values for `DictField` with no `child` argument.
     """
     valid_inputs = [
         ({'a': 1, 'b': [4, 5, 6], 1: 123}, {'a': 1, 'b': [4, 5, 6], '1': 123}),
@@ -1895,6 +1931,49 @@ class TestUnvalidatedDictField(FieldValues):
         ({'a': 1, 'b': [4, 5, 6]}, {'a': 1, 'b': [4, 5, 6]}),
     ]
     field = serializers.DictField()
+
+
+class TestHStoreField(FieldValues):
+    """
+    Values for `ListField` with CharField as child.
+    """
+    valid_inputs = [
+        ({'a': 1, 'b': '2', 3: 3}, {'a': '1', 'b': '2', '3': '3'}),
+        ({'a': 1, 'b': None}, {'a': '1', 'b': None}),
+    ]
+    invalid_inputs = [
+        ('not a dict', ['Expected a dictionary of items but got type "str".']),
+    ]
+    outputs = [
+        ({'a': 1, 'b': '2', 3: 3}, {'a': '1', 'b': '2', '3': '3'}),
+    ]
+    field = serializers.HStoreField()
+
+    def test_child_is_charfield(self):
+        with pytest.raises(AssertionError) as exc_info:
+            serializers.HStoreField(child=serializers.IntegerField())
+
+        assert str(exc_info.value) == (
+            "The `child` argument must be an instance of `CharField`, "
+            "as the hstore extension stores values as strings."
+        )
+
+    def test_no_source_on_child(self):
+        with pytest.raises(AssertionError) as exc_info:
+            serializers.HStoreField(child=serializers.CharField(source='other'))
+
+        assert str(exc_info.value) == (
+            "The `source` argument is not meaningful when applied to a `child=` field. "
+            "Remove `source=` from the field declaration."
+        )
+
+    def test_allow_null(self):
+        """
+        If `allow_null=True` then `None` is a valid input.
+        """
+        field = serializers.HStoreField(allow_null=True)
+        output = field.run_validation(None)
+        assert output is None
 
 
 class TestJSONField(FieldValues):

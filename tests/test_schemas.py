@@ -9,7 +9,7 @@ from django.test import TestCase, override_settings
 from rest_framework import (
     filters, generics, pagination, permissions, serializers
 )
-from rest_framework.compat import coreapi, coreschema, get_regex_pattern
+from rest_framework.compat import coreapi, coreschema, get_regex_pattern, path
 from rest_framework.decorators import (
     api_view, detail_route, list_route, schema
 )
@@ -362,6 +362,59 @@ class TestSchemaGenerator(TestCase):
 
 
 @unittest.skipUnless(coreapi, 'coreapi is not installed')
+@unittest.skipUnless(path, 'needs Django 2')
+class TestSchemaGeneratorDjango2(TestCase):
+    def setUp(self):
+        self.patterns = [
+            path('example/', ExampleListView.as_view()),
+            path('example/<int:pk>/', ExampleDetailView.as_view()),
+            path('example/<int:pk>/sub/', ExampleDetailView.as_view()),
+        ]
+
+    def test_schema_for_regular_views(self):
+        """
+        Ensure that schema generation works for APIView classes.
+        """
+        generator = SchemaGenerator(title='Example API', patterns=self.patterns)
+        schema = generator.get_schema()
+        expected = coreapi.Document(
+            url='',
+            title='Example API',
+            content={
+                'example': {
+                    'create': coreapi.Link(
+                        url='/example/',
+                        action='post',
+                        fields=[]
+                    ),
+                    'list': coreapi.Link(
+                        url='/example/',
+                        action='get',
+                        fields=[]
+                    ),
+                    'read': coreapi.Link(
+                        url='/example/{id}/',
+                        action='get',
+                        fields=[
+                            coreapi.Field('id', required=True, location='path', schema=coreschema.String())
+                        ]
+                    ),
+                    'sub': {
+                        'list': coreapi.Link(
+                            url='/example/{id}/sub/',
+                            action='get',
+                            fields=[
+                                coreapi.Field('id', required=True, location='path', schema=coreschema.String())
+                            ]
+                        )
+                    }
+                }
+            }
+        )
+        assert schema == expected
+
+
+@unittest.skipUnless(coreapi, 'coreapi is not installed')
 class TestSchemaGeneratorNotAtRoot(TestCase):
     def setUp(self):
         self.patterns = [
@@ -516,19 +569,72 @@ class Test4605Regression(TestCase):
         assert prefix == '/'
 
 
-class TestDescriptor(TestCase):
+class CustomViewInspector(AutoSchema):
+    """A dummy AutoSchema subclass"""
+    pass
+
+
+class TestAutoSchema(TestCase):
 
     def test_apiview_schema_descriptor(self):
         view = APIView()
         assert hasattr(view, 'schema')
         assert isinstance(view.schema, AutoSchema)
 
+    def test_set_custom_inspector_class_on_view(self):
+        class CustomView(APIView):
+            schema = CustomViewInspector()
+
+        view = CustomView()
+        assert isinstance(view.schema, CustomViewInspector)
+
+    def test_set_custom_inspector_class_via_settings(self):
+        with override_settings(REST_FRAMEWORK={'DEFAULT_SCHEMA_CLASS': 'tests.test_schemas.CustomViewInspector'}):
+            view = APIView()
+            assert isinstance(view.schema, CustomViewInspector)
+
     def test_get_link_requires_instance(self):
         descriptor = APIView.schema  # Accessed from class
         with pytest.raises(AssertionError):
             descriptor.get_link(None, None, None)  # ???: Do the dummy arguments require a tighter assert?
 
-    def test_manual_fields(self):
+    def test_update_fields(self):
+        """
+        That updating fields by-name helper is correct
+
+        Recall: `update_fields(fields, update_with)`
+        """
+        schema = AutoSchema()
+        fields = []
+
+        # Adds a field...
+        fields = schema.update_fields(fields, [
+            coreapi.Field(
+                "my_field",
+                required=True,
+                location="path",
+                schema=coreschema.String()
+            ),
+        ])
+
+        assert len(fields) == 1
+        assert fields[0].name == "my_field"
+
+        # Replaces a field...
+        fields = schema.update_fields(fields, [
+            coreapi.Field(
+                "my_field",
+                required=False,
+                location="path",
+                schema=coreschema.String()
+            ),
+        ])
+
+        assert len(fields) == 1
+        assert fields[0].required is False
+
+    def test_get_manual_fields(self):
+        """That get_manual_fields is applied during get_link"""
 
         class CustomView(APIView):
             schema = AutoSchema(manual_fields=[

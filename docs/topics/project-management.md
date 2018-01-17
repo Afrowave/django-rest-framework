@@ -105,6 +105,11 @@ The following template should be used for the description of the issue, and serv
     Checklist:
 
     - [ ] Create pull request for [release notes](https://github.com/encode/django-rest-framework/blob/master/docs/topics/release-notes.md) based on the [*.*.* milestone](https://github.com/encode/django-rest-framework/milestones/***).
+    - [ ] Update supported versions:
+        - [ ] `setup.py` `python_requires` list
+        - [ ] `setup.py` Python & Django version trove classifiers
+        - [ ] `README` Python & Django versions
+        - [ ] `docs` Python & Django versions
     - [ ] Update the translations from [transifex](http://www.django-rest-framework.org/topics/project-management/#translations).
     - [ ] Ensure the pull request increments the version to `*.*.*` in [`restframework/__init__.py`](https://github.com/encode/django-rest-framework/blob/master/rest_framework/__init__.py).
     - [ ] Confirm with @tomchristie that release is finalized and ready to go.
@@ -196,11 +201,11 @@ The following issues still need to be addressed:
 * Document ownership of the [mailing list][mailing-list] and IRC channel.
 * Document ownership and management of the security mailing list.
 
-[bus-factor]: http://en.wikipedia.org/wiki/Bus_factor
+[bus-factor]: https://en.wikipedia.org/wiki/Bus_factor
 [un-triaged]: https://github.com/encode/django-rest-framework/issues?q=is%3Aopen+no%3Alabel
 [transifex-project]: https://www.transifex.com/projects/p/django-rest-framework/
 [transifex-client]: https://pypi.python.org/pypi/transifex-client
 [translation-memory]: http://docs.transifex.com/guides/tm#let-tm-automatically-populate-translations
 [github-org]: https://github.com/encode/django-rest-framework/issues/2162
-[sandbox]: http://restframework.herokuapp.com/
+[sandbox]: https://restframework.herokuapp.com/
 [mailing-list]: https://groups.google.com/forum/#!forum/django-rest-framework

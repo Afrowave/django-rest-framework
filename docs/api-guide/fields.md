@@ -45,6 +45,8 @@ Defaults to `True`.
 
 Normally an error will be raised if `None` is passed to a serializer field. Set this keyword argument to `True` if `None` should be considered a valid value.
 
+Note that setting this argument to `True` will imply a default value of `null` for serialization output, but does not imply a default for input deserialization.
+
 Defaults to `False`
 
 ### `default`
@@ -121,6 +123,8 @@ For more details see the [HTML & Forms][html-and-forms] documentation.
 A boolean representation.
 
 When using HTML encoded form input be aware that omitting a value will always be treated as setting a field to `False`, even if it has a `default=True` option specified. This is because HTML checkbox inputs represent the unchecked state by omitting the value, so REST framework treats omission as if it is an empty checkbox input.
+
+Note that default `BooleanField` instances will be generated with a `required=False` option (since Django `models.BooleanField` is always `blank=True`). If you want to change this behaviour explicitly declare the `BooleanField` on the serializer class.
 
 Corresponds to `django.db.models.fields.BooleanField`.
 
@@ -469,6 +473,16 @@ You can also use the declarative style, as with `ListField`. For example:
     class DocumentField(DictField):
         child = CharField()
 
+## HStoreField
+
+A preconfigured `DictField` that is compatible with Django's postgres `HStoreField`.
+
+**Signature**: `HStoreField(child=<A_FIELD_INSTANCE>)`
+
+- `child` - A field instance that is used for validating the values in the dictionary. The default child field accepts both empty strings and null values.
+
+Note that the child field **must** be an instance of `CharField`, as the hstore extension stores values as strings.
+
 ## JSONField
 
 A field class that validates that the incoming data structure consists of valid JSON primitives. In its alternate binary mode, it will represent and validate JSON-encoded binary strings.
@@ -557,6 +571,8 @@ Note that the `WritableField` class that was present in version 2.x no longer ex
 
 ## Examples
 
+### A Basic Custom Field
+
 Let's look at an example of serializing a class that represents an RGB color value:
 
     class Color(object):
@@ -596,7 +612,7 @@ As an example, let's create a field that can be used to represent the class name
             """
             return obj.__class__.__name__
 
-#### Raising validation errors
+### Raising validation errors
 
 Our `ColorField` class above currently does not perform any data validation.
 To indicate invalid data, we should raise a `serializers.ValidationError`, like so:
@@ -642,6 +658,137 @@ The `.fail()` method is a shortcut for raising `ValidationError` that takes a me
 
 This style keeps your error messages cleaner and more separated from your code, and should be preferred.
 
+### Using `source='*'`
+
+Here we'll take an example of a _flat_ `DataPoint` model with `x_coordinate` and `y_coordinate` attributes.
+
+    class DataPoint(models.Model):
+        label = models.CharField(max_length=50)
+        x_coordinate = models.SmallIntegerField()
+        y_coordinate = models.SmallIntegerField()
+
+Using a custom field and `source='*'` we can provide a nested representation of
+the coordinate pair:
+
+    class CoordinateField(serializers.Field):
+
+        def to_representation(self, obj):
+            ret = {
+                "x": obj.x_coordinate,
+                "y": obj.y_coordinate
+            }
+            return ret
+
+        def to_internal_value(self, data):
+            ret = {
+                "x_coordinate": data["x"],
+                "y_coordinate": data["y"],
+            }
+            return ret
+
+
+    class DataPointSerializer(serializers.ModelSerializer):
+        coordinates = CoordinateField(source='*')
+
+        class Meta:
+            model = DataPoint
+            fields = ['label', 'coordinates']
+
+Note that this example doesn't handle validation. Partly for that reason, in a
+real project, the coordinate nesting might be better handled with a nested serialiser
+using `source='*'`, with two `IntegerField` instances, each with their own `source`
+pointing to the relevant field.
+
+The key points from the example, though, are:
+
+* `to_representation` is passed the entire `DataPoint` object and must map from that
+to the desired output.
+
+        >>> instance = DataPoint(label='Example', x_coordinate=1, y_coordinate=2)
+        >>> out_serializer = DataPointSerializer(instance)
+        >>> out_serializer.data
+        ReturnDict([('label', 'testing'), ('coordinates', {'x': 1, 'y': 2})])
+
+* Unless our field is to be read-only, `to_internal_value` must map back to a dict
+suitable for updating our target object. With `source='*'`, the return from
+`to_internal_value` will update the root validated data dictionary, rather than a single key.
+
+        >>> data = {
+        ...     "label": "Second Example",
+        ...     "coordinates": {
+        ...         "x": 3,
+        ...         "y": 4,
+        ...     }
+        ... }
+        >>> in_serializer = DataPointSerializer(data=data)
+        >>> in_serializer.is_valid()
+        True
+        >>> in_serializer.validated_data
+        OrderedDict([('label', 'Second Example'),
+                     ('y_coordinate', 4),
+                     ('x_coordinate', 3)])
+
+For completeness lets do the same thing again but with the nested serialiser
+approach suggested above:
+
+    class NestedCoordinateSerializer(serializers.Serializer):
+        x = serializers.IntegerField(source='x_coordinate')
+        y = serializers.IntegerField(source='y_coordinate')
+
+
+    class DataPointSerializer(serializers.ModelSerializer):
+        coordinates = NestedCoordinateSerializer(source='*')
+
+        class Meta:
+            model = DataPoint
+            fields = ['label', 'coordinates']
+
+Here the mapping between the target and source attribute pairs (`x` and
+`x_coordinate`, `y` and `y_coordinate`) is handled in the `IntegerField`
+declarations. It's our `NestedCoordinateSerializer` that takes `source='*'`.
+
+Our new `DataPointSerializer` exhibits the same behaviour as the custom field
+approach.
+
+Serialising:
+
+    >>> out_serializer = DataPointSerializer(instance)
+    >>> out_serializer.data
+    ReturnDict([('label', 'testing'),
+                ('coordinates', OrderedDict([('x', 1), ('y', 2)]))])
+
+Deserialising:
+
+    >>> in_serializer = DataPointSerializer(data=data)
+    >>> in_serializer.is_valid()
+    True
+    >>> in_serializer.validated_data
+    OrderedDict([('label', 'still testing'),
+                 ('x_coordinate', 3),
+                 ('y_coordinate', 4)])
+
+But we also get the built-in validation for free:
+
+    >>> invalid_data = {
+    ...     "label": "still testing",
+    ...     "coordinates": {
+    ...         "x": 'a',
+    ...         "y": 'b',
+    ...     }
+    ... }
+    >>> invalid_serializer = DataPointSerializer(data=invalid_data)
+    >>> invalid_serializer.is_valid()
+    False
+    >>> invalid_serializer.errors
+    ReturnDict([('coordinates',
+                 {'x': ['A valid integer is required.'],
+                  'y': ['A valid integer is required.']})])
+
+For this reason, the nested serialiser approach would be the first to try. You
+would use the custom field approach when the nested serialiser becomes infeasible
+or overly complex.
+
+
 # Third party packages
 
 The following third party packages are also available.
@@ -669,10 +816,8 @@ The [django-rest-framework-hstore][django-rest-framework-hstore] package provide
 [cite]: https://docs.djangoproject.com/en/stable/ref/forms/api/#django.forms.Form.cleaned_data
 [html-and-forms]: ../topics/html-and-forms.md
 [FILE_UPLOAD_HANDLERS]: https://docs.djangoproject.com/en/stable/ref/settings/#std:setting-FILE_UPLOAD_HANDLERS
-[ecma262]: http://ecma-international.org/ecma-262/5.1/#sec-15.9.1.15
 [strftime]: https://docs.python.org/3/library/datetime.html#strftime-and-strptime-behavior
-[django-widgets]: https://docs.djangoproject.com/en/stable/ref/forms/widgets/
-[iso8601]: http://www.w3.org/TR/NOTE-datetime
+[iso8601]: https://www.w3.org/TR/NOTE-datetime
 [drf-compound-fields]: https://drf-compound-fields.readthedocs.io
 [drf-extra-fields]: https://github.com/Hipo/drf-extra-fields
 [djangorestframework-recursive]: https://github.com/heywbj/django-rest-framework-recursive

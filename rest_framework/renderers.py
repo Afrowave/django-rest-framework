@@ -65,7 +65,7 @@ class JSONRenderer(BaseRenderer):
 
     # We don't set a charset because JSON is a binary encoding,
     # that can be encoded as utf-8, utf-16 or utf-32.
-    # See: http://www.ietf.org/rfc/rfc4627.txt
+    # See: https://www.ietf.org/rfc/rfc4627.txt
     # Also: http://lucumr.pocoo.org/2013/7/19/application-mimetypes-and-encodings/
     charset = None
 
@@ -319,6 +319,12 @@ class HTMLFormRenderer(BaseRenderer):
         },
         serializers.ListSerializer: {
             'base_template': 'list_fieldset.html'
+        },
+        serializers.ListField: {
+            'base_template': 'list_field.html'
+        },
+        serializers.DictField: {
+            'base_template': 'dict_field.html'
         },
         serializers.FilePathField: {
             'base_template': 'select.html',
@@ -799,8 +805,8 @@ class AdminRenderer(BrowsableAPIRenderer):
             header = results
             style = 'detail'
 
-        columns = [key for key in header.keys() if key != 'url']
-        details = [key for key in header.keys() if key != 'url']
+        columns = [key for key in header if key != 'url']
+        details = [key for key in header if key != 'url']
 
         context['style'] = style
         context['columns'] = columns

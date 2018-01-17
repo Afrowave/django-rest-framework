@@ -1,7 +1,6 @@
 #! /usr/bin/env python
 from __future__ import print_function
 
-import os
 import subprocess
 import sys
 
@@ -15,8 +14,6 @@ PYTEST_ARGS = {
 FLAKE8_ARGS = ['rest_framework', 'tests']
 
 ISORT_ARGS = ['--recursive', '--check-only', '-o' 'uritemplate', '-p', 'tests', 'rest_framework', 'tests']
-
-sys.path.append(os.path.dirname(__file__))
 
 
 def exit_on_failure(ret, message=None):

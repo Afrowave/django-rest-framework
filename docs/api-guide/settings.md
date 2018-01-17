@@ -94,6 +94,12 @@ A content negotiation class, that determines how a renderer is selected for the 
 
 Default: `'rest_framework.negotiation.DefaultContentNegotiation'`
 
+#### DEFAULT_SCHEMA_CLASS
+
+A view inspector class that will be used for schema generation.
+
+Default: `'rest_framework.schemas.AutoSchema'`
+
 ---
 
 ## Generic view settings
@@ -196,6 +202,8 @@ Default: `'version'`
 #### UNAUTHENTICATED_USER
 
 The class that should be used to initialize `request.user` for unauthenticated requests.
+(If removing authentication entirely, e.g. by removing `django.contrib.auth` from
+`INSTALLED_APPS`, set `UNAUTHENTICATED_USER` to `None`.)
 
 Default: `django.contrib.auth.models.AnonymousUser`
 
@@ -465,6 +473,6 @@ An integer of 0 or more, that may be used to specify the number of application p
 Default: `None`
 
 [cite]: https://www.python.org/dev/peps/pep-0020/
-[rfc4627]: http://www.ietf.org/rfc/rfc4627.txt
+[rfc4627]: https://www.ietf.org/rfc/rfc4627.txt
 [heroku-minified-json]: https://github.com/interagent/http-api-design#keep-json-minified-in-all-responses
 [strftime]: https://docs.python.org/3/library/time.html#time.strftime

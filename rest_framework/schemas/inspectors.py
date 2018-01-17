@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 inspectors.py   # Per-endpoint view introspection
 
@@ -53,13 +54,13 @@ def field_to_schema(field):
         return coreschema.String(title=title, description=description)
     elif isinstance(field, serializers.MultipleChoiceField):
         return coreschema.Array(
-            items=coreschema.Enum(enum=list(field.choices.keys())),
+            items=coreschema.Enum(enum=list(field.choices)),
             title=title,
             description=description
         )
     elif isinstance(field, serializers.ChoiceField):
         return coreschema.Enum(
-            enum=list(field.choices.keys()),
+            enum=list(field.choices),
             title=title,
             description=description
         )
@@ -172,7 +173,8 @@ class AutoSchema(ViewInspector):
         * `manual_fields`: list of `coreapi.Field` instances that
             will be added to auto-generated fields, overwriting on `Field.name`
         """
-
+        if manual_fields is None:
+            manual_fields = []
         self._manual_fields = manual_fields
 
     def get_link(self, path, method, base_url):
@@ -181,11 +183,8 @@ class AutoSchema(ViewInspector):
         fields += self.get_pagination_fields(path, method)
         fields += self.get_filter_fields(path, method)
 
-        if self._manual_fields is not None:
-            by_name = {f.name: f for f in fields}
-            for f in self._manual_fields:
-                by_name[f.name] = f
-            fields = list(by_name.values())
+        manual_fields = self.get_manual_fields(path, method)
+        fields = self.update_fields(fields, manual_fields)
 
         if fields and any([field.location in ('form', 'body') for field in fields]):
             encoding = self.get_encoding(path, method)
@@ -260,7 +259,7 @@ class AutoSchema(ViewInspector):
                 # Attempt to infer a field description if possible.
                 try:
                     model_field = model._meta.get_field(variable)
-                except:
+                except Exception:
                     model_field = None
 
                 if model_field is not None and model_field.verbose_name:
@@ -379,6 +378,31 @@ class AutoSchema(ViewInspector):
             fields += filter_backend().get_schema_fields(self.view)
         return fields
 
+    def get_manual_fields(self, path, method):
+        return self._manual_fields
+
+    @staticmethod
+    def update_fields(fields, update_with):
+        """
+        Update list of coreapi.Field instances, overwriting on `Field.name`.
+
+        Utility function to handle replacing coreapi.Field fields
+        from a list by name. Used to handle `manual_fields`.
+
+        Parameters:
+
+        * `fields`: list of `coreapi.Field` instances to update
+        * `update_with: list of `coreapi.Field` instances to add or replace.
+        """
+        if not update_with:
+            return fields
+
+        by_name = OrderedDict((f.name, f) for f in fields)
+        for f in update_with:
+            by_name[f.name] = f
+        fields = list(by_name.values())
+        return fields
+
     def get_encoding(self, path, method):
         """
         Return the 'encoding' parameter to use for a given endpoint.
@@ -433,3 +457,13 @@ class ManualSchema(ViewInspector):
         )
 
         return self._link
+
+
+class DefaultSchema(object):
+    """Allows overriding AutoSchema using DEFAULT_SCHEMA_CLASS setting"""
+    def __get__(self, instance, owner):
+        inspector_class = api_settings.DEFAULT_SCHEMA_CLASS
+        assert issubclass(inspector_class, ViewInspector), "DEFAULT_SCHEMA_CLASS must be set to a ViewInspector (usually an AutoSchema) subclass"
+        inspector = inspector_class()
+        inspector.view = instance
+        return inspector

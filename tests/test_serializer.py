@@ -77,13 +77,22 @@ class TestSerializer:
         serializer = self.Serializer(data={'char': 'abc', 'integer': 123})
         assert serializer.is_valid()
         assert serializer.validated_data == {'char': 'abc', 'integer': 123}
+        assert serializer.data == {'char': 'abc', 'integer': 123}
         assert serializer.errors == {}
 
     def test_invalid_serializer(self):
         serializer = self.Serializer(data={'char': 'abc'})
         assert not serializer.is_valid()
         assert serializer.validated_data == {}
+        assert serializer.data == {'char': 'abc'}
         assert serializer.errors == {'integer': ['This field is required.']}
+
+    def test_invalid_datatype(self):
+        serializer = self.Serializer(data=[{'char': 'abc'}])
+        assert not serializer.is_valid()
+        assert serializer.validated_data == {}
+        assert serializer.data == {}
+        assert serializer.errors == {'non_field_errors': ['Invalid data. Expected a dictionary, but got list.']}
 
     def test_partial_validation(self):
         serializer = self.Serializer(data={'char': 'abc'}, partial=True)
@@ -371,6 +380,14 @@ class TestNotRequiredOutput:
         serializer.is_valid()
         serializer.save()
         assert serializer.data == {'included': 'abc'}
+
+    def test_not_required_output_for_allow_null_field(self):
+        class ExampleSerializer(serializers.Serializer):
+            omitted = serializers.CharField(required=False, allow_null=True)
+            included = serializers.CharField()
+
+        serializer = ExampleSerializer({'included': 'abc'})
+        assert 'omitted' not in serializer.data
 
 
 class TestDefaultOutput:

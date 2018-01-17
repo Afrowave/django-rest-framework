@@ -73,7 +73,7 @@ Deserialization is similar. First we parse a stream into Python native datatypes
 
 ## Saving instances
 
-If we want to be able to return complete object instances based on the validated data we need to implement one or both of the `.create()` and `update()` methods. For example:
+If we want to be able to return complete object instances based on the validated data we need to implement one or both of the `.create()` and `.update()` methods. For example:
 
     class CommentSerializer(serializers.Serializer):
         email = serializers.EmailField()
@@ -325,7 +325,7 @@ For updates you'll want to think carefully about how to handle updates to relati
 * Ignore the data and leave the instance as it is.
 * Raise a validation error.
 
-Here's an example for an `update()` method on our previous `UserSerializer` class.
+Here's an example for an `.update()` method on our previous `UserSerializer` class.
 
         def update(self, instance, validated_data):
             profile_data = validated_data.pop('profile')
@@ -352,7 +352,7 @@ Here's an example for an `update()` method on our previous `UserSerializer` clas
 
 Because the behavior of nested creates and updates can be ambiguous, and may require complex dependencies between related models, REST framework 3 requires you to always write these methods explicitly. The default `ModelSerializer` `.create()` and `.update()` methods do not include support for writable nested representations.
 
-It is possible that a third party package, providing automatic support some kinds of automatic writable nested representations may be released alongside the 3.1 release.
+There are however, third-party packages available such as [DRF Writable Nested][thirdparty-writable-nested] that support automatic writable nested representations.
 
 #### Handling saving related instances in model manager classes
 
@@ -1007,6 +1007,14 @@ The signatures for these methods are as follows:
 
 Takes the object instance that requires serialization, and should return a primitive representation. Typically this means returning a structure of built-in Python datatypes. The exact types that can be handled will depend on the render classes you have configured for your API.
 
+May be overridden in order modify the representation style. For example:
+
+    def to_representation(self, instance):
+        """Convert `username` to lowercase."""
+        ret = super().to_representation(instance)
+        ret['username'] = ret['username'].lower()
+        return ret
+
 #### ``.to_internal_value(self, data)``
 
 Takes the unvalidated incoming data as input and should return the validated data that will be made available as `serializer.validated_data`. The return value will also be passed to the `.create()` or `.update()` methods if `.save()` is called on the serializer class.
@@ -1075,7 +1083,7 @@ For example, if you wanted to be able to set which fields should be used by a se
             if fields is not None:
                 # Drop any fields that are not specified in the `fields` argument.
                 allowed = set(fields)
-                existing = set(self.fields.keys())
+                existing = set(self.fields)
                 for field_name in existing - allowed:
                     self.fields.pop(field_name)
 
@@ -1164,8 +1172,9 @@ The [drf-writable-nested][drf-writable-nested] package provides writable nested 
 [cite]: https://groups.google.com/d/topic/django-users/sVFaOfQi4wY/discussion
 [relations]: relations.md
 [model-managers]: https://docs.djangoproject.com/en/stable/topics/db/managers/
-[encapsulation-blogpost]: http://www.dabapps.com/blog/django-models-and-encapsulation/
-[django-rest-marshmallow]: http://tomchristie.github.io/django-rest-marshmallow/
+[encapsulation-blogpost]: https://www.dabapps.com/blog/django-models-and-encapsulation/
+[thirdparty-writable-nested]: serializers.md#drf-writable-nested
+[django-rest-marshmallow]: https://tomchristie.github.io/django-rest-marshmallow/
 [marshmallow]: https://marshmallow.readthedocs.io/en/latest/
 [serpy]: https://github.com/clarkduvall/serpy
 [mongoengine]: https://github.com/umutbozkurt/django-rest-framework-mongoengine
@@ -1179,5 +1188,5 @@ The [drf-writable-nested][drf-writable-nested] package provides writable nested 
 [drf-dynamic-fields]: https://github.com/dbrgn/drf-dynamic-fields
 [drf-base64]: https://bitbucket.org/levit_scs/drf_base64
 [drf-serializer-extensions]: https://github.com/evenicoulddoit/django-rest-framework-serializer-extensions
-[djangorestframework-queryfields]: http://djangorestframework-queryfields.readthedocs.io/
-[drf-writable-nested]: http://github.com/beda-software/drf-writable-nested
+[djangorestframework-queryfields]: https://djangorestframework-queryfields.readthedocs.io/
+[drf-writable-nested]: https://github.com/beda-software/drf-writable-nested

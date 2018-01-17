@@ -5,14 +5,9 @@ versions of Django/Python, and compatibility wrappers around optional packages.
 
 from __future__ import unicode_literals
 
-import inspect
-
 import django
-from django.apps import apps
 from django.conf import settings
 from django.core import validators
-from django.core.exceptions import ImproperlyConfigured
-from django.db import models
 from django.utils import six
 from django.views.generic import View
 
@@ -29,13 +24,40 @@ except ImportError:
     )
 
 
+def get_original_route(urlpattern):
+    """
+    Get the original route/regex that was typed in by the user into the path(), re_path() or url() directive. This
+    is in contrast with get_regex_pattern below, which for RoutePattern returns the raw regex generated from the path().
+    """
+    if hasattr(urlpattern, 'pattern'):
+        # Django 2.0
+        return str(urlpattern.pattern)
+    else:
+        # Django < 2.0
+        return urlpattern.regex.pattern
+
+
 def get_regex_pattern(urlpattern):
+    """
+    Get the raw regex out of the urlpattern's RegexPattern or RoutePattern. This is always a regular expression,
+    unlike get_original_route above.
+    """
     if hasattr(urlpattern, 'pattern'):
         # Django 2.0
         return urlpattern.pattern.regex.pattern
     else:
         # Django < 2.0
         return urlpattern.regex.pattern
+
+
+def is_route_pattern(urlpattern):
+    if hasattr(urlpattern, 'pattern'):
+        # Django 2.0
+        from django.urls.resolvers import RoutePattern
+        return isinstance(urlpattern.pattern, RoutePattern)
+    else:
+        # Django < 2.0
+        return False
 
 
 def make_url_resolver(regex, urlpatterns):
@@ -80,30 +102,6 @@ def distinct(queryset, base):
     return queryset.distinct()
 
 
-def _resolve_model(obj):
-    """
-    Resolve supplied `obj` to a Django model class.
-
-    `obj` must be a Django model class itself, or a string
-    representation of one.  Useful in situations like GH #1225 where
-    Django may not have resolved a string-based reference to a model in
-    another model's foreign key definition.
-
-    String representations should have the format:
-        'appname.ModelName'
-    """
-    if isinstance(obj, six.string_types) and len(obj.split('.')) == 2:
-        app_name, model_name = obj.split('.')
-        resolved_model = apps.get_model(app_name, model_name)
-        if resolved_model is None:
-            msg = "Django did not return a model for {0}.{1}"
-            raise ImproperlyConfigured(msg.format(app_name, model_name))
-        return resolved_model
-    elif inspect.isclass(obj) and issubclass(obj, models.Model):
-        return obj
-    raise ValueError("{0} is not a Django model".format(obj))
-
-
 # django.contrib.postgres requires psycopg2
 try:
     from django.contrib.postgres import fields as postgres_fields
@@ -115,8 +113,7 @@ except ImportError:
 try:
     import coreapi
     import uritemplate
-except (ImportError, SyntaxError):
-    # SyntaxError is possible under python 3.2
+except ImportError:
     coreapi = None
     uritemplate = None
 
@@ -255,9 +252,18 @@ try:
 except ImportError:
     InvalidTimeError = Exception
 
+# Django 1.x url routing syntax. Remove when dropping Django 1.11 support.
+try:
+    from django.urls import include, path, re_path, register_converter  # noqa
+except ImportError:
+    from django.conf.urls import include, url # noqa
+    path = None
+    register_converter = None
+    re_path = url
+
 
 # `separators` argument to `json.dumps()` differs between 2.x and 3.x
-# See: http://bugs.python.org/issue22767
+# See: https://bugs.python.org/issue22767
 if six.PY3:
     SHORT_SEPARATORS = (',', ':')
     LONG_SEPARATORS = (', ', ': ')

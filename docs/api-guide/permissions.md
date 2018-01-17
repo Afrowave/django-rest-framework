@@ -192,7 +192,7 @@ If you need to test if a request is a read operation or a write operation, you s
 
 ---
 
-**Note**: The instance-level `has_object_permission` method will only be called if the view-level `has_permission` checks have already passed. Also note that in order for the instance-level checks to run, the view code should explicitly call `.check_object_permissions(request, obj)`. If you are using the generic views then this will be handled for you by default.
+**Note**: The instance-level `has_object_permission` method will only be called if the view-level `has_permission` checks have already passed. Also note that in order for the instance-level checks to run, the view code should explicitly call `.check_object_permissions(request, obj)`. If you are using the generic views then this will be handled for you by default. (Function-based views will need to check object permissions explicitly, raising `PermissionDenied` on failure.)
 
 ---
 
@@ -276,10 +276,7 @@ The [Django Rest Framework API Key][django-rest-framework-api-key] package allow
 [contribauth]: https://docs.djangoproject.com/en/stable/topics/auth/customizing/#custom-permissions
 [objectpermissions]: https://docs.djangoproject.com/en/stable/topics/auth/customizing/#handling-object-permissions
 [guardian]: https://github.com/lukaszb/django-guardian
-[get_objects_for_user]: http://pythonhosted.org/django-guardian/api/guardian.shortcuts.html#get-objects-for-user
-[2.2-announcement]: ../topics/2.2-announcement.md
 [filtering]: filtering.md
-[drf-any-permissions]: https://github.com/kevin-brown/drf-any-permissions
 [composed-permissions]: https://github.com/niwibe/djangorestframework-composed-permissions
 [rest-condition]: https://github.com/caxap/rest_condition
 [dry-rest-permissions]: https://github.com/Helioscene/dry-rest-permissions

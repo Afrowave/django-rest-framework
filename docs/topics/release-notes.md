@@ -40,17 +40,97 @@ You can determine your currently installed version using `pip freeze`:
 
 ## 3.7.x series
 
+### 3.7.7
+
+**Date**: [21st December 2017][3.7.7-milestone]
+
+* Fix typo to include *.mo locale files to packaging. [#5697][gh5697], [#5695][gh5695]
+
+### 3.7.6
+
+**Date**: [21st December 2017][3.7.6-milestone]
+
+* Add missing *.ico icon files to packaging.
+
+### 3.7.5
+
+**Date**: [21st December 2017][3.7.5-milestone]
+
+* Add missing *.woff2 font files to packaging. [#5692][gh5692]
+* Add missing *.mo locale files to packaging. [#5695][gh5695], [#5696][gh5696]
+
+### 3.7.4
+
+**Date**: [20th December 2017][3.7.4-milestone]
+
+* Schema: Extract method for `manual_fields` processing [#5633][gh5633]
+
+    Allows for easier customisation of `manual_fields` processing, for example
+    to provide per-method manual fields. `AutoSchema` adds `get_manual_fields`,
+    as the intended override point, and a utility method `update_fields`, to
+    handle by-name field replacement from a list, which, in general, you are not
+    expected to override.
+
+    Note: `AutoSchema.__init__` now ensures `manual_fields` is a list.
+    Previously may have been stored internally as `None`.
+
+* Remove ulrparse compatability shim; use six instead [#5579][gh5579]
+* Drop compat wrapper for `TimeDelta.total_seconds()` [#5577][gh5577]
+* Clean up all whitespace throughout project [#5578][gh5578]
+* Compat cleanup [#5581][gh5581]
+* Add pygments CSS block in browsable API views [#5584][gh5584] [#5587][gh5587]
+* Remove `set_rollback()` from compat [#5591][gh5591]
+* Fix request body/POST access [#5590][gh5590]
+* Rename test to reference correct issue [#5610][gh5610]
+* Documentation Fixes [#5611][gh5611] [#5612][gh5612]
+* Remove references to unsupported Django versions in docs and code [#5602][gh5602]
+* Test Serializer exclude for declared fields [#5599][gh5599]
+* Fixed schema generation for filter backends [#5613][gh5613]
+* Minor cleanup for ModelSerializer tests [#5598][gh5598]
+* Reimplement request attribute access w/ `__getattr__` [#5617][gh5617]
+* Fixed SchemaJSRenderer renders invalid Javascript [#5607][gh5607]
+* Make Django 2.0 support official/explicit [#5619][gh5619]
+* Perform type check on passed request argument [#5618][gh5618]
+* Fix AttributeError hiding on request authenticators [#5600][gh5600]
+* Update test requirements [#5626][gh5626]
+* Docs: `Serializer._declared_fields` enable modifying fields on a serializer [#5629][gh5629]
+* Fix packaging [#5624][gh5624]
+* Fix readme rendering for PyPI, add readme build to CI [#5625][gh5625]
+* Update tutorial [#5622][gh5622]
+* Non-required fields with `allow_null=True` should not imply a default value [#5639][gh5639]
+* Docs: Add `allow_null` serialization output note [#5641][gh5641]
+* Update to use the Django 2.0 release in tox.ini [#5645][gh5645]
+* Fix `Serializer.data` for Browsable API rendering when provided invalid `data` [#5646][gh5646]
+* Docs: Note AutoSchema limitations on bare APIView [#5649][gh5649]
+* Add `.basename` and `.reverse_action()` to ViewSet [#5648][gh5648]
+* Docs: Fix typos in serializers documentation [#5652][gh5652]
+* Fix `override_settings` compat [#5668][gh5668]
+* Add DEFAULT_SCHEMA_CLASS setting [#5658][gh5658]
+* Add docs note re generated BooleanField being `required=False` [#5665][gh5665]
+* Add 'dist' build [#5656][gh5656]
+* Fix typo in docstring [#5678][gh5678]
+* Docs: Add `UNAUTHENTICATED_USER = None` note [#5679][gh5679]
+* Update OPTIONS example from “Documenting Your API” [#5680][gh5680]
+* Docs: Add note on object permissions for FBVs [#5681][gh5681]
+* Docs: Add example to `to_representation` docs [#5682][gh5682]
+* Add link to Classy DRF in docs [#5683][gh5683]
+* Document ViewSet.action [#5685][gh5685]
+* Fix schema docs typo [#5687][gh5687]
+* Fix URL pattern parsing in schema generation [#5689][gh5689]
+* Add example using `source=‘*’` to custom field docs. [#5688][gh5688]
+* Fix format_suffix_patterns behavior with Django 2 path() routes [#5691][gh5691]
+
 
 ### 3.7.3
 
-**Date**: [6th Novemember 2017][3.7.3-milestone]
+**Date**: [6th November 2017][3.7.3-milestone]
 
 * Fix `AppRegistryNotReady` error from contrib.auth view imports [#5567][gh5567]
 
 
 ### 3.7.2
 
-**Date**: [6th Novemember 2017][3.7.2-milestone]
+**Date**: [6th November 2017][3.7.2-milestone]
 
 * Fixed Django 2.1 compatibility due to removal of django.contrib.auth.login()/logout() views. [#5510][gh5510]
 * Add missing import for TextLexer. [#5512][gh5512]
@@ -812,13 +892,6 @@ For older release notes, [please see the version 2.x documentation][old-release-
 [cite]: http://www.catb.org/~esr/writings/cathedral-bazaar/cathedral-bazaar/ar01s04.html
 [deprecation-policy]: #deprecation-policy
 [django-deprecation-policy]: https://docs.djangoproject.com/en/stable/internals/release-process/#internal-release-deprecation-policy
-[defusedxml-announce]: http://blog.python.org/2013/02/announcing-defusedxml-fixes-for-xml.html
-[743]: https://github.com/encode/django-rest-framework/pull/743
-[staticfiles14]: https://docs.djangoproject.com/en/1.4/howto/static-files/#with-a-template-tag
-[staticfiles13]: https://docs.djangoproject.com/en/1.3/howto/static-files/#with-a-template-tag
-[2.1.0-notes]: https://groups.google.com/d/topic/django-rest-framework/Vv2M0CMY9bg/discussion
-[ticket-582]: https://github.com/encode/django-rest-framework/issues/582
-[rfc-6266]: http://tools.ietf.org/html/rfc6266#section-4.3
 [old-release-notes]: https://github.com/encode/django-rest-framework/blob/version-2.4.x/docs/topics/release-notes.md
 [3.6-release]: 3.6-announcement.md
 
@@ -863,7 +936,10 @@ For older release notes, [please see the version 2.x documentation][old-release-
 [3.7.1-milestone]: https://github.com/encode/django-rest-framework/milestone/58?closed=1
 [3.7.2-milestone]: https://github.com/encode/django-rest-framework/milestone/59?closed=1
 [3.7.3-milestone]: https://github.com/encode/django-rest-framework/milestone/60?closed=1
-
+[3.7.4-milestone]: https://github.com/encode/django-rest-framework/milestone/62?closed=1
+[3.7.5-milestone]: https://github.com/encode/django-rest-framework/milestone/63?closed=1
+[3.7.6-milestone]: https://github.com/encode/django-rest-framework/milestone/64?closed=1
+[3.7.7-milestone]: https://github.com/encode/django-rest-framework/milestone/65?closed=1
 
 <!-- 3.0.1 -->
 [gh2013]: https://github.com/encode/django-rest-framework/issues/2013
@@ -1070,7 +1146,6 @@ For older release notes, [please see the version 2.x documentation][old-release-
 [gh3249]: https://github.com/encode/django-rest-framework/issues/3249
 [gh3250]: https://github.com/encode/django-rest-framework/issues/3250
 [gh3275]: https://github.com/encode/django-rest-framework/issues/3275
-[gh3288]: https://github.com/encode/django-rest-framework/issues/3288
 [gh3290]: https://github.com/encode/django-rest-framework/issues/3290
 [gh3303]: https://github.com/encode/django-rest-framework/issues/3303
 [gh3313]: https://github.com/encode/django-rest-framework/issues/3313
@@ -1327,7 +1402,6 @@ For older release notes, [please see the version 2.x documentation][old-release-
 
 <!-- 3.4.4 -->
 
-[gh2829]: https://github.com/encode/django-rest-framework/issues/2829
 [gh3329]: https://github.com/encode/django-rest-framework/issues/3329
 [gh3330]: https://github.com/encode/django-rest-framework/issues/3330
 [gh3365]: https://github.com/encode/django-rest-framework/issues/3365
@@ -1568,7 +1642,6 @@ For older release notes, [please see the version 2.x documentation][old-release-
 [gh5457]: https://github.com/encode/django-rest-framework/issues/5457
 [gh5376]: https://github.com/encode/django-rest-framework/issues/5376
 [gh5422]: https://github.com/encode/django-rest-framework/issues/5422
-[gh5408]: https://github.com/encode/django-rest-framework/issues/5408
 [gh3732]: https://github.com/encode/django-rest-framework/issues/3732
 [djangodocs-set-timezone]: https://docs.djangoproject.com/en/1.11/topics/i18n/timezones/#default-time-zone-and-current-time-zone
 [gh5273]: https://github.com/encode/django-rest-framework/issues/5273
@@ -1621,3 +1694,59 @@ For older release notes, [please see the version 2.x documentation][old-release-
 
 <!-- 3.7.3 -->
 [gh5567]: https://github.com/encode/django-rest-framework/issues/5567
+
+<!-- 3.7.4 -->
+[gh5691]: https://github.com/encode/django-rest-framework/issues/5691
+[gh5688]: https://github.com/encode/django-rest-framework/issues/5688
+[gh5689]: https://github.com/encode/django-rest-framework/issues/5689
+[gh5687]: https://github.com/encode/django-rest-framework/issues/5687
+[gh5685]: https://github.com/encode/django-rest-framework/issues/5685
+[gh5683]: https://github.com/encode/django-rest-framework/issues/5683
+[gh5682]: https://github.com/encode/django-rest-framework/issues/5682
+[gh5681]: https://github.com/encode/django-rest-framework/issues/5681
+[gh5680]: https://github.com/encode/django-rest-framework/issues/5680
+[gh5679]: https://github.com/encode/django-rest-framework/issues/5679
+[gh5678]: https://github.com/encode/django-rest-framework/issues/5678
+[gh5656]: https://github.com/encode/django-rest-framework/issues/5656
+[gh5665]: https://github.com/encode/django-rest-framework/issues/5665
+[gh5658]: https://github.com/encode/django-rest-framework/issues/5658
+[gh5668]: https://github.com/encode/django-rest-framework/issues/5668
+[gh5652]: https://github.com/encode/django-rest-framework/issues/5652
+[gh5648]: https://github.com/encode/django-rest-framework/issues/5648
+[gh5649]: https://github.com/encode/django-rest-framework/issues/5649
+[gh5646]: https://github.com/encode/django-rest-framework/issues/5646
+[gh5645]: https://github.com/encode/django-rest-framework/issues/5645
+[gh5641]: https://github.com/encode/django-rest-framework/issues/5641
+[gh5639]: https://github.com/encode/django-rest-framework/issues/5639
+[gh5622]: https://github.com/encode/django-rest-framework/issues/5622
+[gh5625]: https://github.com/encode/django-rest-framework/issues/5625
+[gh5624]: https://github.com/encode/django-rest-framework/issues/5624
+[gh5629]: https://github.com/encode/django-rest-framework/issues/5629
+[gh5626]: https://github.com/encode/django-rest-framework/issues/5626
+[gh5600]: https://github.com/encode/django-rest-framework/issues/5600
+[gh5618]: https://github.com/encode/django-rest-framework/issues/5618
+[gh5619]: https://github.com/encode/django-rest-framework/issues/5619
+[gh5607]: https://github.com/encode/django-rest-framework/issues/5607
+[gh5617]: https://github.com/encode/django-rest-framework/issues/5617
+[gh5598]: https://github.com/encode/django-rest-framework/issues/5598
+[gh5613]: https://github.com/encode/django-rest-framework/issues/5613
+[gh5599]: https://github.com/encode/django-rest-framework/issues/5599
+[gh5602]: https://github.com/encode/django-rest-framework/issues/5602
+[gh5612]: https://github.com/encode/django-rest-framework/issues/5612
+[gh5611]: https://github.com/encode/django-rest-framework/issues/5611
+[gh5610]: https://github.com/encode/django-rest-framework/issues/5610
+[gh5590]: https://github.com/encode/django-rest-framework/issues/5590
+[gh5591]: https://github.com/encode/django-rest-framework/issues/5591
+[gh5587]: https://github.com/encode/django-rest-framework/issues/5587
+[gh5584]: https://github.com/encode/django-rest-framework/issues/5584
+[gh5581]: https://github.com/encode/django-rest-framework/issues/5581
+[gh5578]: https://github.com/encode/django-rest-framework/issues/5578
+[gh5577]: https://github.com/encode/django-rest-framework/issues/5577
+[gh5579]: https://github.com/encode/django-rest-framework/issues/5579
+[gh5633]: https://github.com/encode/django-rest-framework/issues/5633
+
+<!-- 3.7.5 -->
+[gh5692]: https://github.com/encode/django-rest-framework/issues/5692
+[gh5695]: https://github.com/encode/django-rest-framework/issues/5695
+[gh5696]: https://github.com/encode/django-rest-framework/issues/5696
+[gh5697]: https://github.com/encode/django-rest-framework/issues/5697

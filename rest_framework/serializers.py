@@ -54,9 +54,9 @@ from rest_framework.validators import (
 from rest_framework.fields import (  # NOQA # isort:skip
     BooleanField, CharField, ChoiceField, DateField, DateTimeField, DecimalField,
     DictField, DurationField, EmailField, Field, FileField, FilePathField, FloatField,
-    HiddenField, IPAddressField, ImageField, IntegerField, JSONField, ListField,
-    ModelField, MultipleChoiceField, NullBooleanField, ReadOnlyField, RegexField,
-    SerializerMethodField, SlugField, TimeField, URLField, UUIDField,
+    HiddenField, HStoreField, IPAddressField, ImageField, IntegerField, JSONField,
+    ListField, ModelField, MultipleChoiceField, NullBooleanField, ReadOnlyField,
+    RegexField, SerializerMethodField, SlugField, TimeField, URLField, UUIDField,
 )
 from rest_framework.relations import (  # NOQA # isort:skip
     HyperlinkedIdentityField, HyperlinkedRelatedField, ManyRelatedField,
@@ -384,7 +384,7 @@ class Serializer(BaseSerializer):
         """
         # Every new serializer is created with a clone of the field instances.
         # This allows users to dynamically modify the fields on a serializer
-        # instance without affecting every other serializer class.
+        # instance without affecting every other serializer instance.
         return copy.deepcopy(self._declared_fields)
 
     def get_validators(self):
@@ -398,6 +398,10 @@ class Serializer(BaseSerializer):
 
     def get_initial(self):
         if hasattr(self, 'initial_data'):
+            # initial_data may not be a valid type
+            if not isinstance(self.initial_data, Mapping):
+                return OrderedDict()
+
             return OrderedDict([
                 (field_name, field.get_value(self.initial_data))
                 for field_name, field in self.fields.items()
@@ -1132,9 +1136,9 @@ class ModelSerializer(Serializer):
         """
         return (
             [model_info.pk.name] +
-            list(declared_fields.keys()) +
-            list(model_info.fields.keys()) +
-            list(model_info.forward_relations.keys())
+            list(declared_fields) +
+            list(model_info.fields) +
+            list(model_info.forward_relations)
         )
 
     # Methods for constructing serializer fields...
@@ -1190,7 +1194,7 @@ class ModelSerializer(Serializer):
                 'error_messages', 'validators', 'allow_null', 'allow_blank',
                 'choices'
             }
-            for key in list(field_kwargs.keys()):
+            for key in list(field_kwargs):
                 if key not in valid_kwargs:
                     field_kwargs.pop(key)
 
@@ -1360,7 +1364,7 @@ class ModelSerializer(Serializer):
 
         # Include each of the `unique_together` field names,
         # so long as all the field names are included on the serializer.
-        for parent_class in [model] + list(model._meta.parents.keys()):
+        for parent_class in [model] + list(model._meta.parents):
             for unique_together_list in parent_class._meta.unique_together:
                 if set(field_names).issuperset(set(unique_together_list)):
                     unique_constraint_names |= set(unique_together_list)
@@ -1462,7 +1466,7 @@ class ModelSerializer(Serializer):
         """
         model_class_inheritance_tree = (
             [self.Meta.model] +
-            list(self.Meta.model._meta.parents.keys())
+            list(self.Meta.model._meta.parents)
         )
 
         # The field names we're passing though here only include fields
@@ -1537,10 +1541,7 @@ if hasattr(models, 'IPAddressField'):
     ModelSerializer.serializer_field_mapping[models.IPAddressField] = IPAddressField
 
 if postgres_fields:
-    class CharMappingField(DictField):
-        child = CharField(allow_blank=True)
-
-    ModelSerializer.serializer_field_mapping[postgres_fields.HStoreField] = CharMappingField
+    ModelSerializer.serializer_field_mapping[postgres_fields.HStoreField] = HStoreField
     ModelSerializer.serializer_field_mapping[postgres_fields.ArrayField] = ListField
     ModelSerializer.serializer_field_mapping[postgres_fields.JSONField] = JSONField
 
@@ -1562,9 +1563,9 @@ class HyperlinkedModelSerializer(ModelSerializer):
         """
         return (
             [self.url_field_name] +
-            list(declared_fields.keys()) +
-            list(model_info.fields.keys()) +
-            list(model_info.forward_relations.keys())
+            list(declared_fields) +
+            list(model_info.fields) +
+            list(model_info.forward_relations)
         )
 
     def build_nested_field(self, field_name, relation_info, nested_depth):
